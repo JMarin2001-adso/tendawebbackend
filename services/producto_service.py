@@ -374,37 +374,47 @@ class ProductoService:
             with self.con.cursor(pymysql.cursors.DictCursor) as cursor:
                 sql = """
                 SELECT 
-                    p.id_producto,
-                    p.nombre,
-                    COALESCE(i.stock_actual, 0) AS stock_actual,
-                    (
-                        SELECT precio_adquirido 
-                        FROM inventario_entrada 
-                        WHERE id_producto = p.id_producto
-                        ORDER BY fecha_ingreso DESC
-                        LIMIT 1
-                    ) AS precio_adquirido,
-                    (
-                        SELECT fecha_ingreso 
-                        FROM inventario_entrada 
-                        WHERE id_producto = p.id_producto
-                        ORDER BY fecha_ingreso DESC
-                        LIMIT 1
-                    ) AS fecha_ingreso,
-                    (
-                        SELECT pr.nombre_proveedor
-                        FROM proveedor pr
-                        JOIN inventario_entrada e ON pr.id_proveedor = e.id_proveedor
-                        WHERE e.id_producto = p.id_producto
-                        ORDER BY e.fecha_ingreso DESC
-                        LIMIT 1
-                    ) AS proveedor
+                p.id_producto,
+                p.nombre,
+                COALESCE(SUM(i.stock_actual), 0) AS stock_actual,
+
+                (
+                    SELECT ie.precio_adquirido
+                    FROM inventario_entrada ie
+                    WHERE ie.id_producto = p.id_producto
+                      AND ie.fecha_ingreso = (
+                          SELECT MAX(fecha_ingreso)
+                          FROM inventario_entrada
+                          WHERE id_producto = p.id_producto
+                      )
+                    LIMIT 1
+                ) AS precio_adquirido,
+
+                (
+                    SELECT MAX(fecha_ingreso)
+                    FROM inventario_entrada
+                    WHERE id_producto = p.id_producto
+                ) AS fecha_ingreso,
+
+                (
+                    SELECT pr.nombre_proveedor
+                    FROM proveedor pr
+                    JOIN inventario_entrada ie ON pr.id_proveedor = ie.id_proveedor
+                    WHERE ie.id_producto = p.id_producto
+                      AND ie.fecha_ingreso = (
+                          SELECT MAX(fecha_ingreso)
+                          FROM inventario_entrada
+                          WHERE id_producto = p.id_producto
+                      )
+                    LIMIT 1
+                ) AS proveedor
+                
                 FROM producto p
                 LEFT JOIN inventario i ON p.id_producto = i.id_producto
                 WHERE p.estado = 1
-                GROUP BY p.id_producto
+                GROUP BY p.id_producto, p.nombre
                 ORDER BY p.id_producto DESC
-            """
+                """
                 
                 cursor.execute(sql)
                 inventario = cursor.fetchall()
@@ -417,6 +427,7 @@ class ProductoService:
                         "data": serializar(inventario)
                         }
                         )
+                
         except Exception as e:
             print("Error en listar_inventario_sync:", str(e))
             return JSONResponse(
@@ -429,6 +440,8 @@ class ProductoService:
                     )
         finally:
             self.close_connection()
+
+
 
     def entrada_stock_sync(self, data: EntradaStock):
         try:

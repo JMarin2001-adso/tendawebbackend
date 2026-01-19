@@ -14,6 +14,7 @@ from router.factura_routes import router as factura_routes
 app = FastAPI(title="tienda web")
 
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+#app.mount("/frontend", StaticFiles(directory="frontend"), name="frontend")
 
 # Routers
 app.include_router(usuario_routes)
