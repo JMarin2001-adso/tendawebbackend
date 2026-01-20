@@ -1,14 +1,12 @@
 from fastapi import APIRouter, Form, UploadFile, File,HTTPException
-import os
+import config.cloudinary_config 
+from utils.cloudinary_upload import subir_imagen_cloudinary
 from datetime import date
 from services.producto_service import ProductoService
 from models.producto_model import ProductoCreate,InventarioEntradaCreate,InventarioSalidaCreate,EntradaStock,ProductoUpdate
 
 router = APIRouter(prefix="/producto", tags=["Producto"])
 
-
-UPLOAD_FOLDER = "uploads"
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 @router.post("/")
 async def crear_producto(
@@ -17,32 +15,24 @@ async def crear_producto(
     precio: float = Form(...),
     id_categoria: int = Form(...),
     categoria: str = Form(...),
-    imagen: UploadFile = File(None) 
+    imagen: UploadFile = File(None)
 ):
-    ruta_relativa = None
+    imagen_url = None
 
-    # Guardar imagen
     if imagen:
-        nombre_archivo = imagen.filename
-        ruta_imagen = os.path.join(UPLOAD_FOLDER, nombre_archivo)
-        with open(ruta_imagen, "wb") as buffer:
-            buffer.write(await imagen.read())
-        ruta_relativa = f"{UPLOAD_FOLDER}/{nombre_archivo}"
+        imagen_url = subir_imagen_cloudinary(imagen.file)
 
-    # Crear objeto Producto
     producto = ProductoCreate(
         nombre=nombre,
         descripcion=descripcion,
         precio=precio,
         id_categoria=id_categoria,
         categoria=categoria,
-        imagen=ruta_relativa
+        imagen=imagen_url
     )
 
-    # Crear registro
     service = ProductoService()
     return service.crear_producto(producto)
-
 
 @router.get("/")
 def listar_productos():

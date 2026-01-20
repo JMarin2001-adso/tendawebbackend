@@ -1,3 +1,4 @@
+from config.cloudinary_config import init_cloudinary
 from fastapi import FastAPI, status
 from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -12,6 +13,7 @@ from router.pago_routes import router as pago_routes
 from router.factura_routes import router as factura_routes
 
 app = FastAPI(title="tienda web")
+init_cloudinary()
 
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 #app.mount("/frontend", StaticFiles(directory="frontend"), name="frontend")
