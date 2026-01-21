@@ -522,7 +522,6 @@ class ProductoService:
         try:
             self.con.ping(reconnect=True)
             cursor = self.con.cursor()
-            
             if imagen_url:
                 sql = """
                     UPDATE producto 
@@ -530,6 +529,7 @@ class ProductoService:
                     WHERE id_producto = %s
                     """
                 valores = (nombre, precio, imagen_url, id_producto)
+                
             else:
                 sql = """
                     UPDATE producto 
@@ -537,24 +537,31 @@ class ProductoService:
                     WHERE id_producto = %s
                     """
                 valores = (nombre, precio, id_producto)
-                
+            
                 cursor.execute(sql, valores)
                 self.con.commit()
-            
+
+            if cursor.rowcount == 0:
+                return JSONResponse(
+                    status_code=404,
+                    content={"success": False, "message": "Producto no encontrado"}
+                    )
             return JSONResponse(
                 status_code=200,
                 content={"success": True, "message": "Producto actualizado correctamente"}
                 )
-            
         except Exception as e:
-            if self.con: self.con.rollback()
-            return JSONResponse(
-                status_code=500,
-                content={"success": False, "message": f"Error en base de datos: {str(e)}"}
-                )
+            if self.con:
+                self.con.rollback()
+                return JSONResponse(
+                    status_code=500,
+                    content={"success": False, "message": f"Error en base de datos: {str(e)}"}
+                    )
         finally:
-            if cursor: cursor.close()
-            self.close_connection()
+            if cursor:
+                cursor.close()
+                self.close_connection()
+
 
 
     def actualizar_integral_sync(self, data: ProductoUpdate):

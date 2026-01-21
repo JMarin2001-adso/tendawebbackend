@@ -41,3 +41,4 @@ class ProductoUpdate(BaseModel):
     precio: float
     disponible: bool = True
     stock_actual:int
+    imagen: Optional[str] = None
