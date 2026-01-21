@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Form, UploadFile, File,HTTPException
-import config.cloudinary_config 
 from utils.cloudinary_upload import subir_imagen_cloudinary
 from datetime import date
 from services.producto_service import ProductoService

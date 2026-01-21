@@ -69,9 +69,13 @@ class ProductoService:
         try:
             self.con.ping(reconnect=True)
             with self.con.cursor(pymysql.cursors.DictCursor) as cursor:
-                sql = sql = """
+                sql = """
                 SELECT 
-                p.id_producto, p.nombre, p.precio, p.imagen, p.disponible,
+                p.id_producto, 
+                p.nombre, 
+                p.precio, 
+                p.imagen, 
+                p.disponible,
                 COALESCE(i.stock_actual, 0) AS stock_actual
                 FROM producto p
                 LEFT JOIN inventario i ON p.id_producto = i.id_producto
@@ -80,43 +84,31 @@ class ProductoService:
                 cursor.execute(sql)
                 productos = cursor.fetchall()
                 
-                print("Productos encontrados:", len(productos))
-                
                 for p in productos:
-                    if p.get("imagen"):
-                        if "uploads/" in p["imagen"]:
-                            p["imagen"] = f"http://127.0.0.1:8000/{p['imagen']}"
-                        else:
-                            p["imagen"] = f"http://127.0.0.1:8000/uploads/{p['imagen']}"
-                    else:
-                            p["imagen"] = "http://127.0.0.1:8000/uploads/default.jpg"
-
-        #Convertir Decimal a float para evitar errores.
-            for p in productos:
-                if isinstance(p.get("precio"), Decimal):
-                   p["precio"] = float(p["precio"])
-
-            return JSONResponse(
-                status_code=200,
-                content={
-                    "success": True,
-                    "message": "Productos obtenidos exitosamente",
-                    "data": productos if productos else []
-                }
-            )
+                    if isinstance(p.get("precio"), Decimal):
+                        p["precio"] = float(p["precio"])
+                        
+                    if not p.get("imagen"):
+                        p["imagen"] = "https://res.cloudinary.com/dpcl6zqwn/image/upload/productos/default.jpg"
+                
+                return JSONResponse(
+                    status_code=200,
+                    content={
+                        "success": True,
+                        "message": "Productos obtenidos exitosamente",
+                        "data": productos}
+                        )
         except Exception as e:
-            print("Error en listar_productos_sync:", str(e))
             return JSONResponse(
                 status_code=500,
                 content={
                     "success": False,
-                    "message": f"Error al obtener los productos: {str(e)}",
+                    "message": str(e),
                     "data": None
-                }
-            )
+                    }
+                    )
         finally:
-           self.close_connection()
-
+            self.close_connection()
     
     def listar_entradas_sync(self):
         try:
