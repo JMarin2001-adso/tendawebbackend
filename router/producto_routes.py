@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Form, UploadFile, File,HTTPException
+from fastapi.responses import JSONResponse
 from utils.cloudinary_upload import subir_imagen_cloudinary
 from datetime import date
 from services.producto_service import ProductoService
@@ -83,12 +84,23 @@ async def actualizar_producto(
     precio: float = Form(...),
     imagen: UploadFile = File(None)
 ):
+    imagen_url = None
+    
+    if imagen:
+        try:
+            imagen_url = subir_imagen_cloudinary(imagen.file)
+        except Exception as e:
+            return JSONResponse(
+                status_code=500,
+                content={"success": False, "message": f"Error al subir imagen: {str(e)}"}
+            )
+
     service = ProductoService()
     return service.actualizar_producto_sync(
         id_producto=id_producto,
         nombre=nombre,
         precio=precio,
-        imagen=imagen
+        imagen_url=imagen_url  
     )
 
 

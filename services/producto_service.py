@@ -517,65 +517,44 @@ class ProductoService:
         finally:
             self.close_connection()
 
-    def actualizar_producto_sync(self, id_producto, nombre, precio, imagen=None):
+    def actualizar_producto_sync(self, id_producto, nombre, precio, imagen_url=None):
         cursor = None
         try:
             self.con.ping(reconnect=True)
             cursor = self.con.cursor()
-            imagen_url = None
             
-            if imagen:
-                imagen_url = subir_imagen_cloudinary(imagen.file)
+            if imagen_url:
+                sql = """
+                    UPDATE producto 
+                    SET nombre = %s, precio = %s, imagen = %s 
+                    WHERE id_producto = %s
+                    """
+                valores = (nombre, precio, imagen_url, id_producto)
+            else:
+                sql = """
+                    UPDATE producto 
+                    SET nombre = %s, precio = %s 
+                    WHERE id_producto = %s
+                    """
+                valores = (nombre, precio, id_producto)
                 
-                if imagen_url:
-                    sql = """
-                    UPDATE producto
-                    SET nombre = %s, precio = %s, imagen = %s
-                    WHERE id_producto = %s
-                    """
-
-                    valores = (nombre, precio, imagen_url, id_producto)
-                else:
-                    sql = """
-                    UPDATE producto
-                    SET nombre = %s, precio = %s
-                    WHERE id_producto = %s
-                    """
-                    
-                    valores = (nombre, precio, id_producto)
-                    
-                    cursor.execute(sql, valores)
-                    self.con.commit()
-                    
-                    if cursor.rowcount > 0:
-                        return JSONResponse(
-                            status_code=200,
-                            content={
-                                "success": True,
-                                "message": "Producto actualizado correctamente"
-                                }
-                                )
-                    else:
-                        return JSONResponse(
-                            status_code=404,
-                            content={
-                                "success": False,
-                                "message": "Producto no encontrado"
-                                }
-                                )
+                cursor.execute(sql, valores)
+                self.con.commit()
+            
+            return JSONResponse(
+                status_code=200,
+                content={"success": True, "message": "Producto actualizado correctamente"}
+                )
+            
         except Exception as e:
+            if self.con: self.con.rollback()
             return JSONResponse(
                 status_code=500,
-                content={
-                    "success": False,
-                    "message": f"Error en servidor: {str(e)}"
-                    }
-                    )
+                content={"success": False, "message": f"Error en base de datos: {str(e)}"}
+                )
         finally:
-            if cursor:
-                cursor.close()
-                self.close_connection()
-
+            if cursor: cursor.close()
+            self.close_connection()
 
 
     def actualizar_integral_sync(self, data: ProductoUpdate):
