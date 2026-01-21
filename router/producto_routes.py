@@ -76,7 +76,7 @@ def sincronizar_inventario():
     return service.sincronizar_inventario_sync()
 
 
-@router.put("/actualizar")
+@router.put("/actualizar-producto")
 async def actualizar_producto(
     id_producto: int = Form(...),
     nombre: str = Form(...),
