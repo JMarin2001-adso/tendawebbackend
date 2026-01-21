@@ -75,10 +75,22 @@ def sincronizar_inventario():
     service = ProductoService()
     return service.sincronizar_inventario_sync()
 
-@router.put("/actualizar-precio")
-def actualizar_precio(data: ProductoUpdate):
+
+@router.put("/actualizar")
+async def actualizar_producto(
+    id_producto: int = Form(...),
+    nombre: str = Form(...),
+    precio: float = Form(...),
+    imagen: UploadFile = File(None)
+):
     service = ProductoService()
-    return service.actualizar_precio_sync(data)
+    return service.actualizar_producto_sync(
+        id_producto=id_producto,
+        nombre=nombre,
+        precio=precio,
+        imagen=imagen
+    )
+
 
 @router.get("/productos-mayor-rotacion")
 def productos_mayor_rotacion(
