@@ -523,14 +523,17 @@ class ProductoService:
             self.con.ping(reconnect=True)
             cursor = self.con.cursor()
             imagen_url = None
+            
             if imagen:
                 imagen_url = subir_imagen_cloudinary(imagen.file)
+                
                 if imagen_url:
                     sql = """
                     UPDATE producto
                     SET nombre = %s, precio = %s, imagen = %s
                     WHERE id_producto = %s
                     """
+
                     valores = (nombre, precio, imagen_url, id_producto)
                 else:
                     sql = """
@@ -538,27 +541,28 @@ class ProductoService:
                     SET nombre = %s, precio = %s
                     WHERE id_producto = %s
                     """
-                valores = (nombre, precio, id_producto)
-                
-                cursor.execute(sql, valores)
-                self.con.commit()
-                
-                if cursor.rowcount > 0:
-                    return JSONResponse(
-                        status_code=200,
-                        content={
-                            "success": True,
-                            "message": "Producto actualizado correctamente"
-                            }
-                            )
-                else:
-                    return JSONResponse(
-                        status_code=404,
-                        content={
-                            "success": False,
-                            "message": "Producto no encontrado"
-                            }
-                            )
+                    
+                    valores = (nombre, precio, id_producto)
+                    
+                    cursor.execute(sql, valores)
+                    self.con.commit()
+                    
+                    if cursor.rowcount > 0:
+                        return JSONResponse(
+                            status_code=200,
+                            content={
+                                "success": True,
+                                "message": "Producto actualizado correctamente"
+                                }
+                                )
+                    else:
+                        return JSONResponse(
+                            status_code=404,
+                            content={
+                                "success": False,
+                                "message": "Producto no encontrado"
+                                }
+                                )
         except Exception as e:
             return JSONResponse(
                 status_code=500,
