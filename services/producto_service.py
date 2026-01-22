@@ -1,7 +1,7 @@
 
 from fastapi.responses import JSONResponse
 from db.db_mysql import get_db_connection
-from models.producto_model import ProductoCreate,InventarioSalidaCreate,InventarioEntradaCreate,EntradaStock,ProductoUpdate
+from models.producto_model import ProductoCreate,ProductosUpdate,InventarioSalidaCreate,InventarioEntradaCreate,EntradaStock,ProductoUpdate
 import pymysql
 import pymysql.cursors
 from decimal import Decimal
@@ -517,7 +517,7 @@ class ProductoService:
         finally:
             self.close_connection()
 
-    def actualizar_producto(self, producto: ProductoUpdate):
+    def actualizar_producto(self, producto: ProductosUpdate):
         try:
             self.con.ping(reconnect=True)
             cursor = self.con.cursor()

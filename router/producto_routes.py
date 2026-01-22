@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 from utils.cloudinary_upload import subir_imagen_cloudinary
 from datetime import date
 from services.producto_service import ProductoService
-from models.producto_model import ProductoCreate,InventarioEntradaCreate,InventarioSalidaCreate,EntradaStock,ProductoUpdate
+from models.producto_model import ProductoCreate,ProductosUpdate,InventarioEntradaCreate,InventarioSalidaCreate,EntradaStock,ProductoUpdate
 
 router = APIRouter(prefix="/producto", tags=["Producto"])
 
@@ -89,7 +89,7 @@ async def actualizar_producto(
     if imagen:
         imagen_url = subir_imagen_cloudinary(imagen.file)
 
-    producto = ProductoUpdate(
+    producto = ProductosUpdate(
         id_producto=id_producto,
         nombre=nombre,
         precio=precio,

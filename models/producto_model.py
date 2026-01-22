@@ -42,3 +42,9 @@ class ProductoUpdate(BaseModel):
     disponible: bool = True
     stock_actual:int
     imagen: Optional[str] = None
+
+class ProductosUpdate(BaseModel):
+    id_producto: int
+    nombre: str
+    precio: float
+    imagen: Optional[str] = None
