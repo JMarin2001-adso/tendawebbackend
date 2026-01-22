@@ -518,7 +518,7 @@ class ProductoService:
             self.close_connection()
 
     def actualizar_producto(self, producto: ProductosUpdate):
-        cursor = None
+        cursor = None 
         try:
             self.con.ping(reconnect=True)
             cursor = self.con.cursor()
@@ -528,7 +528,7 @@ class ProductoService:
                     UPDATE producto 
                     SET nombre = %s, precio = %s, imagen = %s 
                     WHERE id_producto = %s
-                    """
+                """
                 
                 valores = (producto.nombre, producto.precio, producto.imagen, producto.id_producto)
             else: 
@@ -536,21 +536,18 @@ class ProductoService:
                     UPDATE producto 
                     SET nombre = %s, precio = %s 
                     WHERE id_producto = %s
-                    """
+                """
                 valores = (producto.nombre, producto.precio, producto.id_producto)
-                
                 cursor.execute(sql, valores)
+                
                 self.con.commit()
-                
-                if cursor.rowcount == 0:
-                    return {"success": False, "message": "Producto no encontrado"}
-                
-                return {"success": True, "message": "Producto actualizado correctamente"}
-            
+            if cursor.rowcount == 0:
+                return {"error": "Producto no encontrado"}
+            return {"mensaje": "Producto actualizado correctamente"}
         except Exception as e:
             if self.con:
                 self.con.rollback()
-                return {"success": False, "message": str(e)}
+                return {"error": str(e)}
         finally:
             if cursor:
                 cursor.close()

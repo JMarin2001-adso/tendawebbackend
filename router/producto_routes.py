@@ -76,9 +76,6 @@ def sincronizar_inventario():
     service = ProductoService()
     return service.sincronizar_inventario_sync()
 
-
-from fastapi import HTTPException, status
-
 @router.put("/actualizar-producto")
 async def actualizar_producto(
     id_producto: int = Form(...),
@@ -88,14 +85,9 @@ async def actualizar_producto(
 ):
     imagen_url = None
 
-    if imagen and imagen.filename:
-        try:
-            imagen_url = subir_imagen_cloudinary(imagen.file)
-        except Exception as e:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
-                detail=f"Error al subir imagen: {str(e)}"
-            )
+    if imagen:
+        # Usamos el mismo método que te funciona en creación
+        imagen_url = subir_imagen_cloudinary(imagen.file)
 
     producto = ProductosUpdate(
         id_producto=id_producto,
@@ -106,12 +98,11 @@ async def actualizar_producto(
 
     service = ProductoService()
     resultado = service.actualizar_producto(producto)
-
-    if not resultado["success"]:
-        if "no encontrado" in resultado["message"].lower():
-            raise HTTPException(status_code=404, detail=resultado["message"])
-        raise HTTPException(status_code=400, detail=resultado["message"])
-
+    
+    # Si el servicio devuelve un error, lanzamos la excepción para Swagger
+    if "error" in resultado:
+        raise HTTPException(status_code=400, detail=resultado["error"])
+        
     return resultado
 
 @router.get("/productos-mayor-rotacion")
