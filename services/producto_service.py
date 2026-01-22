@@ -1,7 +1,7 @@
 
 from fastapi.responses import JSONResponse
 from db.db_mysql import get_db_connection
-from models.producto_model import ProductoCreate,ProductosUpdate,InventarioSalidaCreate,InventarioEntradaCreate,EntradaStock,ProductoUpdate
+from models.producto_model import ProductoCreate,ProductosUpdate,InventarioSalidaCreate,InventarioEntradaCreate,ProductoUpdate
 import pymysql
 import pymysql.cursors
 from decimal import Decimal
@@ -157,47 +157,36 @@ class ProductoService:
         try:
             self.con.ping(reconnect=True)
             with self.con.cursor(pymysql.cursors.DictCursor) as cursor:
-                
                 cursor.execute(
                     "SELECT id_producto FROM producto WHERE id_producto = %s",
                     (data.id_producto,)
                     )
-                producto = cursor.fetchone()
-                
-                if not producto:
+                if not cursor.fetchone():
                     return JSONResponse(
                         status_code=404,
-                        content={
-                            "success": False,
-                            "message": f"El producto con ID {data.id_producto} no existe.",
-                            "data": None
-                            }
-                            )
-                sql_entrada = """
-                INSERT INTO inventario_entrada
-                (id_producto, nombre_producto, precio_adquirido, cantidad, fecha_ingreso, id_proveedor, observacion)
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
-                """
-                
-                cursor.execute(sql_entrada, (
-                    data.id_producto,
-                    data.nombre_producto,
-                    data.precio_adquirido,
-                    data.cantidad,
-                    data.fecha_ingreso,
-                    data.id_proveedor,
-                    data.observacion
-                    ))
-                
+                        content={"success": False, "message": "Producto no existe"}
+                        )
+                    
+                cursor.execute("""
+                               INSERT INTO inventario_entrada
+                               (id_producto, nombre_producto, precio_adquirido, cantidad, fecha_ingreso, id_proveedor, observacion) 
+                               VALUES (%s, %s, %s, %s, %s, %s, %s) 
+                               """, (
+                                   data.id_producto,
+                                   data.nombre_producto,
+                                   data.precio_adquirido,
+                                   data.cantidad,
+                                   data.fecha_ingreso,
+                                   data.id_proveedor,
+                                   data.observacion
+                                   ))
                 cursor.execute(
                     "SELECT stock_actual FROM inventario WHERE id_producto = %s",
                     (data.id_producto,)
                     )
-                
                 inventario = cursor.fetchone()
                 
                 if inventario:
-                    
                     cursor.execute("""
                                    UPDATE inventario
                                    SET stock_actual = stock_actual + %s
@@ -209,31 +198,21 @@ class ProductoService:
                                    VALUES (%s, %s, %s)
                                    """, (data.id_producto, data.cantidad, 5))
                     self.con.commit()
-                    
                     return JSONResponse(
                         status_code=201,
                         content={
                             "success": True,
-                            "message": "Entrada registrada y stock actualizado correctamente",
-                            "data": {
-                                "id_producto": data.id_producto,
-                                "cantidad_ingresada": data.cantidad
-                                }
-                                }
-                                )
+                            "message": "Entrada registrada y stock actualizado correctamente"
+                            }
+                            )
         except Exception as e:
-            print("Error en agregar_entrada_sync:", str(e))
+            self.con.rollback()
             return JSONResponse(
                 status_code=500,
-                content={
-                    "success": False,
-                    "message": f"Error al registrar entrada: {str(e)}",
-                    "data": None
-                    }
-                    )
+                content={"success": False, "message": str(e)}
+                )
         finally:
             self.close_connection()
-
 
     def listar_salidas_sync(self):
         try:
@@ -434,42 +413,6 @@ class ProductoService:
         finally:
             self.close_connection()
 
-
-
-    def entrada_stock_sync(self, data: EntradaStock):
-        try:
-            self.con.ping(reconnect=True)
-            with self.con.cursor(pymysql.cursors.DictCursor) as cursor:
-                cursor.execute("""
-                               UPDATE inventario
-                               SET stock_actual = stock_actual + %s
-                               WHERE id_producto = %s
-                               """, (data.cantidad, data.id_producto))
-                
-                cursor.execute("""
-                               INSERT INTO inventario_entrada
-                               (id_producto, precio_adquirido, cantidad, fecha_ingreso, id_proveedor, observacion)
-                               VALUES (%s, %s, %s, %s,%s,%s)
-                               """, (
-                                   data.id_producto,
-                                   data.precio_adquirido,
-                                   data.cantidad,
-                                   data.fecha_ingreso,
-                                   data.id_proveedor,
-                                   data.observacion
-                                   ))
-                self.con.commit()
-                return JSONResponse(
-                    status_code=200,
-                    content={"success": True, "message": "Stock actualizado correctamente"}
-                    )
-        except Exception as e:
-            return JSONResponse(
-                status_code=500,
-                content={"success": False, "message": f"Error al actualizar stock: {str(e)}"}
-                )
-        finally:
-            self.close_connection()
 
     def sincronizar_inventario_sync(self):
         try:

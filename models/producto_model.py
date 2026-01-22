@@ -25,16 +25,7 @@ class InventarioSalidaCreate(BaseModel):
     fecha_salida: date
     observacion: Optional[str] = None
     id_usuario: int
-
-class EntradaStock(BaseModel):
-    id_producto: int
-    precio_adquirido:float
-    cantidad: int
-    fecha_ingreso: date
-    id_proveedor: int
-    observacion: Optional[str] = None
     
-
 class ProductoUpdate(BaseModel):
     id_producto: int
     nombre: str
