@@ -85,24 +85,19 @@ async def actualizar_producto(
     imagen: UploadFile = File(None)
 ):
     imagen_url = None
-    
-    if imagen:
-        try:
-            imagen_url = subir_imagen_cloudinary(imagen.file)
-        except Exception as e:
-            return JSONResponse(
-                status_code=500,
-                content={"success": False, "message": f"Error al subir imagen: {str(e)}"}
-            )
 
-    service = ProductoService()
-    return service.actualizar_producto_sync(
+    if imagen:
+        imagen_url = subir_imagen_cloudinary(imagen.file)
+
+    producto = ProductoUpdate(
         id_producto=id_producto,
         nombre=nombre,
         precio=precio,
-        imagen_url=imagen_url  
+        imagen=imagen_url
     )
 
+    service = ProductoService()
+    return service.actualizar_producto(producto)
 
 @router.get("/productos-mayor-rotacion")
 def productos_mayor_rotacion(
