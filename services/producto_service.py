@@ -518,34 +518,26 @@ class ProductoService:
             self.close_connection()
 
     def actualizar_producto(self, producto: ProductosUpdate):
+        cursor = None
         try:
             self.con.ping(reconnect=True)
             cursor = self.con.cursor()
             
             if producto.imagen:
                 sql = """
-                    UPDATE producto
-                    SET nombre = %s, precio = %s, imagen = %s
+                    UPDATE producto 
+                    SET nombre = %s, precio = %s, imagen = %s 
                     WHERE id_producto = %s
                     """
-                valores = (
-                    producto.nombre,
-                    producto.precio,
-                    producto.imagen,
-                    producto.id_producto
-                    ) 
-            else: 
                 
+                valores = (producto.nombre, producto.precio, producto.imagen, producto.id_producto)
+            else: 
                 sql = """
-                    UPDATE producto
-                    SET nombre = %s, precio = %s
+                    UPDATE producto 
+                    SET nombre = %s, precio = %s 
                     WHERE id_producto = %s
                     """
-                valores = (
-                    producto.nombre,
-                    producto.precio,
-                    producto.id_producto
-                    )
+                valores = (producto.nombre, producto.precio, producto.id_producto)
                 
                 cursor.execute(sql, valores)
                 self.con.commit()
@@ -554,12 +546,11 @@ class ProductoService:
                     return {"success": False, "message": "Producto no encontrado"}
                 
                 return {"success": True, "message": "Producto actualizado correctamente"}
-        
+            
         except Exception as e:
             if self.con:
                 self.con.rollback()
                 return {"success": False, "message": str(e)}
-
         finally:
             if cursor:
                 cursor.close()

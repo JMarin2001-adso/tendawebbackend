@@ -77,6 +77,8 @@ def sincronizar_inventario():
     return service.sincronizar_inventario_sync()
 
 
+from fastapi import HTTPException, status
+
 @router.put("/actualizar-producto")
 async def actualizar_producto(
     id_producto: int = Form(...),
@@ -86,8 +88,14 @@ async def actualizar_producto(
 ):
     imagen_url = None
 
-    if imagen:
-        imagen_url = subir_imagen_cloudinary(imagen.file)
+    if imagen and imagen.filename:
+        try:
+            imagen_url = subir_imagen_cloudinary(imagen.file)
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
+                detail=f"Error al subir imagen: {str(e)}"
+            )
 
     producto = ProductosUpdate(
         id_producto=id_producto,
@@ -97,7 +105,14 @@ async def actualizar_producto(
     )
 
     service = ProductoService()
-    return service.actualizar_producto(producto)
+    resultado = service.actualizar_producto(producto)
+
+    if not resultado["success"]:
+        if "no encontrado" in resultado["message"].lower():
+            raise HTTPException(status_code=404, detail=resultado["message"])
+        raise HTTPException(status_code=400, detail=resultado["message"])
+
+    return resultado
 
 @router.get("/productos-mayor-rotacion")
 def productos_mayor_rotacion(
