@@ -519,39 +519,34 @@ class ProductoService:
 
     def actualizar_producto(self, producto: ProductosUpdate):
         cursor = None
-        filas_afectadas = 0 
-        
         try:
             self.con.ping(reconnect=True)
             cursor = self.con.cursor()
             
+            query_parts = ["nombre = %s", "precio = %s"]
+            params = [producto.nombre, producto.precio]
+            
             if producto.imagen:
-                sql = "UPDATE producto SET nombre=%s, precio=%s, imagen=%s WHERE id_producto=%s"
+                query_parts.append("imagen = %s")
+                params.append(producto.imagen)
                 
-                valores = (producto.nombre, producto.precio, producto.imagen, producto.id_producto)
-            else:
-                sql = "UPDATE producto SET nombre=%s, precio=%s WHERE id_producto=%s" 
-                valores = (producto.nombre, producto.precio, producto.id_producto)
+                params.append(producto.id_producto) 
+                sql = f"UPDATE producto SET {', '.join(query_parts)} WHERE id_producto = %s"
                 
-                cursor.execute(sql, valores)
+                cursor.execute(sql, params)
                 self.con.commit()
-                filas_afectadas = cursor.rowcount 
                 
-                print(f"RAILWAY LOG - Filas modificadas: {filas_afectadas}")
-            if filas_afectadas == 0:
-                return {
-                    "success": False, 
-                    "mensaje": "No se encontró el ID o los datos son idénticos a los actuales"
-                    }
-            return {"success": True, "mensaje": "Producto actualizado correctamente"}
+            if cursor.rowcount > 0:
+                return {"success": True, "mensaje": "Producto actualizado"}
+            cursor.execute("SELECT 1 FROM producto WHERE id_producto = %s", (producto.id_producto,))
+            if cursor.fetchone():
+                return {"success": True, "mensaje": "No hubo cambios (datos idénticos)"}
+            return {"success": False, "mensaje": "El ID no existe"}
         except Exception as e:
-            if self.con:
-                self.con.rollback()
-                print(f"ERROR EN BD: {str(e)}")
-                return {"success": False, "mensaje": f"Error en la base de datos: {str(e)}"}
-        finally:
-            if cursor:
-                cursor.close()
+            if self.con: self.con.rollback()
+            return {"success": False, "mensaje": str(e)}
+        finally: 
+            if cursor: cursor.close()
 
     def actualizar_integral_sync(self, data: ProductoUpdate):
         print("Sincronizando Producto e Inventario:", data)

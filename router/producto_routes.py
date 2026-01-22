@@ -84,12 +84,11 @@ async def actualizar_producto(
     imagen: UploadFile = File(None)
 ):
     imagen_url = None
-
-    if imagen:
-        # Usamos el mismo método que te funciona en creación
+    if imagen and imagen.filename:
+        # Solo subimos a Cloudinary si el usuario seleccionó un archivo real
         imagen_url = subir_imagen_cloudinary(imagen.file)
 
-    producto = ProductosUpdate(
+    producto_obj = ProductosUpdate(
         id_producto=id_producto,
         nombre=nombre,
         precio=precio,
@@ -97,13 +96,8 @@ async def actualizar_producto(
     )
 
     service = ProductoService()
-    resultado = service.actualizar_producto(producto)
+    return service.actualizar_producto(producto_obj)
     
-    # Si el servicio devuelve un error, lanzamos la excepción para Swagger
-    if "error" in resultado:
-        raise HTTPException(status_code=400, detail=resultado["error"])
-        
-    return resultado
 
 @router.get("/productos-mayor-rotacion")
 def productos_mayor_rotacion(
