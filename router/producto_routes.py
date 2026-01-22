@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 from utils.cloudinary_upload import subir_imagen_cloudinary
 from datetime import date
 from services.producto_service import ProductoService
-from models.producto_model import ProductoCreate,ProductosUpdate,InventarioEntradaCreate,InventarioSalidaCreate,ProductoUpdate
+from models.producto_model import ProductoCreate,ProductosUpdate,EntradaStock,InventarioSalidaCreate,ProductoUpdate
 
 router = APIRouter(prefix="/producto", tags=["Producto"])
 
@@ -39,10 +39,10 @@ def listar_productos():
     service = ProductoService()  
     return service.listar_productos_sync()
 
-@router.post("/entrada")
-def registrar_entrada(data: InventarioEntradaCreate):
+@router.post("/producto/entrada")
+def entrada_stock(data: EntradaStock):
     service = ProductoService()
-    return service.agregar_entrada_sync(data)
+    return service.entrada_stock_sync(data)
 
 
 @router.post("/salida")

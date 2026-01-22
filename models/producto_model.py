@@ -10,13 +10,13 @@ class ProductoCreate(BaseModel):
     categoria: str
     imagen: Optional[str] = None  # ruta (ej: "uploads/DOLCEGABANNA1.webp")
 
-class InventarioEntradaCreate(BaseModel):
+class EntradaStock(BaseModel):
     id_producto: int
-    nombre_producto: str                
+    nombre_producto: Optional[str] = None
     precio_adquirido: float
     cantidad: int
     fecha_ingreso: date
-    id_proveedor: int                   
+    id_proveedor: Optional[int] = None
     observacion: Optional[str] = None
 
 class InventarioSalidaCreate(BaseModel):
