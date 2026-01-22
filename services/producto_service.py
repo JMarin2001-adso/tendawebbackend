@@ -525,26 +525,29 @@ class ProductoService:
             
             if producto.imagen:
                 sql = "UPDATE producto SET nombre=%s, precio=%s, imagen=%s WHERE id_producto=%s"
-                
                 valores = (producto.nombre, producto.precio, producto.imagen, producto.id_producto)
+                
             else: 
                 sql = "UPDATE producto SET nombre=%s, precio=%s WHERE id_producto=%s"
                 valores = (producto.nombre, producto.precio, producto.id_producto)
+                
                 cursor.execute(sql, valores)
-            
-            self.con.commit()
-            
+                self.con.commit()
+                
             if cursor.rowcount == 0:
-                return {"error": "No se realizaron cambios (ID no existe o datos iguales)"}
-            return {"mensaje": "Producto actualizado correctamente"}
-        
+                return {"success": False, "mensaje": "No se encontró el ID o los datos son idénticos"}
+            return {"success": True, "mensaje": "Producto actualizado correctamente"}
         except Exception as e:
-            if self.con: self.con.rollback()
-            return {"error": f"Error en DB: {str(e)}"}
+            if self.con: 
+                self.con.rollback()
+                print(f"Error en BD: {str(e)}")
+                
+                return {"success": False, "mensaje": str(e)}
         finally:
-            if cursor: cursor.close()
-            self.close_connection()
-
+            if cursor:
+                cursor.close()
+                self.close_connection()
+                
     def actualizar_integral_sync(self, data: ProductoUpdate):
         print("Sincronizando Producto e Inventario:", data)
         try:
