@@ -518,40 +518,40 @@ class ProductoService:
             self.close_connection()
 
     def actualizar_producto(self, producto: ProductosUpdate):
+        cursor = None
+        filas_afectadas = 0 
+        
         try:
             self.con.ping(reconnect=True)
-            with self.con.cursor() as cursor:
-                if producto.imagen:
-                    sql = """
-                        UPDATE producto 
-                        SET nombre = %s, precio = %s, imagen = %s 
-                        WHERE id_producto = %s
-                    """
-                    valores = (producto.nombre, producto.precio, producto.imagen, producto.id_producto)
-                else:
-                    sql = """
-                        UPDATE producto 
-                        SET nombre = %s, precio = %s 
-                        WHERE id_producto = %s
-                    """
-                    valores = (producto.nombre, producto.precio, producto.id_producto)
-                    
-                    cursor.execute(sql, valores)
-                    
-                    self.con.commit()
-                    
-                    filas = cursor.rowcount
-                    print(f"RAILWAY DEBUG: Filas afectadas = {filas}")
-                if filas == 0:
-                    return {"success": False, "mensaje": "No hubo cambios (ID no existe o datos idénticos)"}
-                return {"success": True, "mensaje": "Producto actualizado correctamente"}
+            cursor = self.con.cursor()
+            
+            if producto.imagen:
+                sql = "UPDATE producto SET nombre=%s, precio=%s, imagen=%s WHERE id_producto=%s"
+                
+                valores = (producto.nombre, producto.precio, producto.imagen, producto.id_producto)
+            else:
+                sql = "UPDATE producto SET nombre=%s, precio=%s WHERE id_producto=%s" 
+                valores = (producto.nombre, producto.precio, producto.id_producto)
+                
+                cursor.execute(sql, valores)
+                self.con.commit()
+                filas_afectadas = cursor.rowcount 
+                
+                print(f"RAILWAY LOG - Filas modificadas: {filas_afectadas}")
+            if filas_afectadas == 0:
+                return {
+                    "success": False, 
+                    "mensaje": "No se encontró el ID o los datos son idénticos a los actuales"
+                    }
+            return {"success": True, "mensaje": "Producto actualizado correctamente"}
         except Exception as e:
             if self.con:
                 self.con.rollback()
-                print(f"RAILWAY ERROR: {str(e)}")
-                return {"success": False, "mensaje": f"Error: {str(e)}"}
-        finally: 
-            pass
+                print(f"ERROR EN BD: {str(e)}")
+                return {"success": False, "mensaje": f"Error en la base de datos: {str(e)}"}
+        finally:
+            if cursor:
+                cursor.close()
 
     def actualizar_integral_sync(self, data: ProductoUpdate):
         print("Sincronizando Producto e Inventario:", data)
