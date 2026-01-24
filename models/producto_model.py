@@ -39,3 +39,7 @@ class ProductosUpdate(BaseModel):
     nombre: str
     precio: float
     imagen: Optional[str] = None
+
+
+
+    
