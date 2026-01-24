@@ -214,7 +214,7 @@ class FacturaService:
                
                 sql_factura = """
                     INSERT INTO factura (id_usuario, numero_factura, total, estado, origen)
-                    VALUES (%s, %s, %s, 'emitida', 'manual')
+                    VALUES (%s, %s, %s, 'emitida', 'fisica')
                 """
                 cursor.execute(sql_factura, (id_usuario, num_factura, total_factura))
                 id_factura = cursor.lastrowid
