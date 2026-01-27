@@ -1,6 +1,6 @@
 from pydantic import BaseModel
-from datetime import date
-from typing import Optional
+from datetime import date,datetime
+from typing import List, Optional
 
 class CuadreCajaIn(BaseModel):
     fecha: date
@@ -15,3 +15,17 @@ class VentaDiariaOut(BaseModel):
     numero_factura: str
     total: float
     fecha: str
+
+
+class VentaOnlineOut(BaseModel):
+    id_factura: int
+    numero_factura: str
+    total: float
+    fecha: datetime
+    id_usuario: int
+
+
+class ReporteOnlineResponse(BaseModel):
+    success: bool
+    ventas: List[VentaOnlineOut]
+    total_online: float

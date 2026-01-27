@@ -84,3 +84,44 @@ class CuadreCajaService:
     def close_connection(self):
         if self.con:
             self.con.close()
+
+
+    def obtener_ventas_online(self, fecha: str):
+        try:
+            self.con.ping(reconnect=True)
+            with self.con.cursor(pymysql.cursors.DictCursor) as cursor:
+
+                cursor.execute("""
+                    SELECT
+                        f.id_factura,
+                        f.numero_factura,
+                        f.total,
+                        f.fecha,
+                        f.id_usuario
+                    FROM factura f
+                    WHERE DATE(f.fecha) = %s
+                      AND f.estado = 'emitida'
+                      AND f.origen = 'online'
+                """, (fecha,))
+
+                ventas = cursor.fetchall()
+                total_online = sum(v["total"] for v in ventas)
+
+                return {
+                    "success": True,
+                    "ventas": ventas,
+                    "total_online": total_online
+                }
+
+        except Exception as e:
+            return {
+                "success": False,
+                "message": str(e)
+            }
+
+        finally:
+            self.close_connection()
+
+    def close_connection(self):
+        if self.con:
+            self.con.close()

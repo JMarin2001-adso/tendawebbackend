@@ -7,15 +7,18 @@ router = APIRouter(
     tags=["Cuadre de Caja"]
 )
 
-# 🔹 Ventas diarias (frontend)
+
 @router.get("/ventas-diarias")
 def ventas_diarias(fecha: str, id_usuario: int):
     service = CuadreCajaService()
     return service.obtener_ventas_diarias(fecha, id_usuario)
 
-
-# 🔹 Guardar cuadre de caja
 @router.post("/")
 def guardar_cuadre(data: CuadreCajaIn):
     service = CuadreCajaService()
     return service.guardar_cuadre_caja(data)
+
+@router.get("/cuadre-online")
+def ventas_online_diarias(fecha: str):
+    service = CuadreCajaService()
+    return service.obtener_ventas_online(fecha)
