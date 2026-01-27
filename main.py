@@ -11,6 +11,7 @@ from router.pedido_routes import router as pedido_routes
 from router.auditoria_routes import router as auditoria_routes
 from router.pago_routes import router as pago_routes
 from router.factura_routes import router as factura_routes
+from router.cuadre_routes import router as cuadre_routes
 
 app = FastAPI(title="tienda web")
 
@@ -26,6 +27,7 @@ app.include_router(pedido_routes)
 app.include_router(auditoria_routes)
 app.include_router(pago_routes)
 app.include_router(factura_routes)
+app.include_router(cuadre_routes)
 
 # CORS
 app.add_middleware(
