@@ -22,3 +22,8 @@ def guardar_cuadre(data: CuadreCajaIn):
 def ventas_online_diarias(fecha: str):
     service = CuadreCajaService()
     return service.obtener_ventas_online(fecha)
+
+@router.get("/existe")
+def verificar_cuadre(fecha: str, id_usuario: int):
+    service = CuadreCajaService()
+    return service.verificar_existencia_cuadre(fecha, id_usuario)

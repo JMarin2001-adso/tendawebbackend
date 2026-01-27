@@ -125,3 +125,20 @@ class CuadreCajaService:
     def close_connection(self):
         if self.con:
             self.con.close()
+
+    def verificar_existencia_cuadre(self, fecha: str, id_usuario: int):
+        try:
+            self.con.ping(reconnect=True)
+            with self.con.cursor() as cursor:
+                cursor.execute("""SELECT id_cuadre 
+                               FROM cuadre_caja 
+                               WHERE DATE(fecha) = %s 
+                               AND id_usuario = %s""", (fecha, id_usuario))
+                return {
+                    "success": True, 
+                    "existe": True if cursor.fetchone() else False}
+        except Exception as e:
+            return {"success": False, 
+                    "message": str(e)}
+        finally:
+            self.close_connection()
