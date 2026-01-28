@@ -1,3 +1,4 @@
+from typing import List
 from fastapi import APIRouter
 from services.cuadre_service import CuadreCajaService
 from models.cuadre_model import CuadreCajaIn
@@ -27,3 +28,5 @@ def ventas_online_diarias(fecha: str):
 def verificar_cuadre(fecha: str, id_usuario: int):
     service = CuadreCajaService()
     return service.verificar_existencia_cuadre(fecha, id_usuario)
+
+

@@ -5,7 +5,7 @@ import pymysql
 import pymysql.cursors
 from db.db_mysql import get_db_connection
 from models.cliente_model import UserClienteCreate
-from models.user_model import LoginRequest, User, LoginEmpleado,DireccionUpdate
+from models.user_model import LoginRequest, User, LoginEmpleado,DireccionUpdate,UsuarioSelectorOut
 
 
 
@@ -389,4 +389,15 @@ class UserService:
 
             self.con.commit()
             return cursor.lastrowid
+        
+    def obtener_empleados_selector(self,):
+        try:
+            self.con.ping(reconnect=True)
+            with self.con.cursor(pymysql.cursors.DictCursor) as cursor:
+                sql = "SELECT id_usuario, nombre FROM usuario WHERE rol = 'empleado'"
+                cursor.execute(sql)
+                return cursor.fetchall()
+        except Exception as e:
+            print(f"Error: {e}")
+            return []
 

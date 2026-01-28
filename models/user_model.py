@@ -27,4 +27,10 @@ class DireccionUpdate(BaseModel):
     postal: str
 
 
+class UsuarioSelectorOut(BaseModel):
+    id_usuario: int
+    nombre: str
+
+    class Config:
+        from_attributes = True
 

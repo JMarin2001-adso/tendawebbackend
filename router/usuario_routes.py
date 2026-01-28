@@ -1,6 +1,7 @@
+from typing import List
 from fastapi import APIRouter,HTTPException
 from services.user_service import UserService
-from models.user_model import LoginRequest, User,LoginEmpleado,DireccionUpdate
+from models.user_model import LoginRequest, User,LoginEmpleado,DireccionUpdate, UsuarioSelectorOut
 from fastapi import Request
 from models.cliente_model import UserClienteCreate
 
@@ -63,3 +64,8 @@ async def login_empleado(data: LoginEmpleado):
 @routes.put("/usuario/{id_usuario}/direccion")
 def actualizar_direccion(id_usuario: int, data: DireccionUpdate):
     return user_service.actualizar_direccion(id_usuario, data)
+
+@routes.get("/empleados", response_model=List[UsuarioSelectorOut])
+def listar_empleados():
+    service = UserService()
+    return service.obtener_empleados_selector()
