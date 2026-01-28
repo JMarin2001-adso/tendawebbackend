@@ -390,14 +390,25 @@ class UserService:
             self.con.commit()
             return cursor.lastrowid
         
-    def obtener_empleados_selector(self,):
+
+    def obtener_empleados_selector(self):
         try:
             self.con.ping(reconnect=True)
-            with self.con.cursor(pymysql.cursors.DictCursor) as cursor:
-                sql = "SELECT id_usuario, nombre FROM usuario WHERE rol = 'empleado'"
+            with self.con.cursor() as cursor:
+                sql = """
+                    SELECT id_usuario, nombre
+                    FROM usuario
+                    WHERE rol = 'empleado'
+                """
                 cursor.execute(sql)
-                return cursor.fetchall()
+                result = cursor.fetchall()
+
+                return result
+
         except Exception as e:
-            print(f"Error: {e}")
             return []
+
+        finally:
+            self.close_connection()
+
 
