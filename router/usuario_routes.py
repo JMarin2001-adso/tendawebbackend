@@ -69,3 +69,9 @@ def actualizar_direccion(id_usuario: int, data: DireccionUpdate):
 def listar_empleados():
     service = UserService()
     return service.obtener_empleados_selector()
+
+
+@routes.get("/vendedor", response_model=dict)
+def obtener_empleados():
+    service = UserService()
+    return service.listar_empleados()

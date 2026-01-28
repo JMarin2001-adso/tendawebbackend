@@ -31,4 +31,6 @@ class UsuarioSelectorOut(BaseModel):
     id_usuario: int
     nombre: str
 
-
+class UsuarioEmpleadoOut(BaseModel):
+    id_usuario: int
+    nombre: str

@@ -412,3 +412,31 @@ class UserService:
             self.close_connection()
 
 
+
+
+    def listar_empleados(self):
+        try:
+            self.con.ping(reconnect=True)
+            with self.con.cursor(pymysql.cursors.DictCursor) as cursor:
+                sql = """
+                    SELECT id_usuario, nombre
+                    FROM usuario
+                    WHERE rol = 'empleado'
+                    AND estado = 'activo'
+                """
+                cursor.execute(sql)
+                empleados = cursor.fetchall()
+
+                return {
+                    "success": True,
+                    "data": empleados
+                }
+
+        except Exception as e:
+            return {
+                "success": False,
+                "message": str(e)
+            }
+
+        finally:
+            self.close_connection()
