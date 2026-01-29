@@ -6,6 +6,7 @@ from datetime import datetime
 class FacturaElectronicaCreate(BaseModel):
     id_pedido: int
     total: float
+    id_empleado:int
 
 class ClienteManual(BaseModel):
     documento: str    

@@ -45,10 +45,11 @@ class FacturaService:
                     id_pedido,
                     numero_factura,
                     id_usuario,
+                    id_empleado,
                     total,
                     estado,
                     origen
-                ) VALUES (%s, %s, %s, %s, 'emitida', 'online')
+                ) VALUES (%s, %s, %s, %s,%s, 'emitida', 'online')
                 """
                 
                 cursor.execute(sql_factura, (
