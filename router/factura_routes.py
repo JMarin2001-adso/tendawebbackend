@@ -43,3 +43,6 @@ def buscar_factura(numero_factura: str):
 def detalle_factura(id_factura: int):
     service = FacturaService()
     return service.obtener_detalle_factura(id_factura)
+
+
+

@@ -213,10 +213,10 @@ class FacturaService:
                 # Insertar cabecera de factura
                
                 sql_factura = """
-                    INSERT INTO factura (id_usuario, numero_factura, total, estado, origen)
-                    VALUES (%s, %s, %s, 'emitida', 'fisica')
+                    INSERT INTO factura (id_usuario, id_empleado, numero_factura, total, estado, origen)
+                    VALUES (%s, %s,%s, %s, 'emitida', 'fisica')
                 """
-                cursor.execute(sql_factura, (id_usuario, num_factura, total_factura))
+                cursor.execute(sql_factura, (id_usuario, data.id_empleado , num_factura, total_factura))
                 id_factura = cursor.lastrowid
 
                 # detalle de factura y afectacion de stock
@@ -404,9 +404,6 @@ class FacturaService:
             return {"success": False, "message": str(e)}
         finally:
             self.close_connection()
-
-
-
 
 
    

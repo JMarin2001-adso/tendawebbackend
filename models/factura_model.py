@@ -20,6 +20,7 @@ class ProductoFactura(BaseModel):
     precio_unitario: float
 
 class FacturaManualCreate(BaseModel):
+    id_empleado:int
     cliente: ClienteManual
     productos: List[ProductoFactura]
 
@@ -36,3 +37,5 @@ class FacturaOut(BaseModel):
     total: float
     estado: str
     fecha: datetime
+
+
