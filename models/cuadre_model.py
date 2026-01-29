@@ -4,7 +4,7 @@ from typing import List, Optional
 
 class CuadreCajaIn(BaseModel):
     fecha: date
-    id_usuario: int
+    id_empleado: int
     total_sistema: float
     dinero_caja: float
     observacion: Optional[str] = None
@@ -22,7 +22,7 @@ class VentaOnlineOut(BaseModel):
     numero_factura: str
     total: float
     fecha: datetime
-    id_usuario: int
+    id_empleado: int
 
 
 class ReporteOnlineResponse(BaseModel):

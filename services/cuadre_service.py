@@ -8,7 +8,7 @@ class CuadreCajaService:
         self.con = get_db_connection()
 
     # 🔹 Ventas del día (para el frontend)
-    def obtener_ventas_diarias(self, fecha: str, id_usuario: int):
+    def obtener_ventas_diarias(self, fecha: str, id_empleado: int):
         try:
             self.con.ping(reconnect=True)
             with self.con.cursor(pymysql.cursors.DictCursor) as cursor:
@@ -20,10 +20,10 @@ class CuadreCajaService:
                         f.fecha
                     FROM factura f
                     WHERE DATE(f.fecha) = %s
-                      AND f.id_usuario = %s
+                      AND f.id_empleado = %s
                       AND f.estado = 'emitida'
                       AND f.origen = 'fisica'
-                """, (fecha, id_usuario))
+                """, (fecha, id_empleado))
 
                 ventas = cursor.fetchall()
 
@@ -53,11 +53,11 @@ class CuadreCajaService:
             with self.con.cursor() as cursor:
                 cursor.execute("""
                     INSERT INTO cuadre_caja
-                    (fecha, id_usuario, total_sistema, dinero_caja, diferencia, observacion)
+                    (fecha, id_empleado, total_sistema, dinero_caja, diferencia, observacion)
                     VALUES (%s, %s, %s, %s, %s, %s)
                 """, (
                     data.fecha,
-                    data.id_usuario,
+                    data.id_empleado,
                     data.total_sistema,
                     data.dinero_caja,
                     diferencia,
@@ -86,7 +86,7 @@ class CuadreCajaService:
             self.con.close()
 
 
-    def obtener_ventas_online(self, fecha: str):
+    def obtener_ventas_online(self, fecha: str, id_empleado:int ):
         try:
             self.con.ping(reconnect=True)
             with self.con.cursor(pymysql.cursors.DictCursor) as cursor:
@@ -97,12 +97,13 @@ class CuadreCajaService:
                         f.numero_factura,
                         f.total,
                         f.fecha,
-                        f.id_usuario
+                        f.id_empleado
                     FROM factura f
                     WHERE DATE(f.fecha) = %s
+                      AND f.id_empleado = %s
                       AND f.estado = 'emitida'
                       AND f.origen = 'online'
-                """, (fecha,))
+                """, (fecha,id_empleado))
 
                 ventas = cursor.fetchall()
                 total_online = sum(v["total"] for v in ventas)
@@ -126,14 +127,14 @@ class CuadreCajaService:
         if self.con:
             self.con.close()
 
-    def verificar_existencia_cuadre(self, fecha: str, id_usuario: int):
+    def verificar_existencia_cuadre(self, fecha: str, id_empleado: int):
         try:
             self.con.ping(reconnect=True)
             with self.con.cursor() as cursor:
                 cursor.execute("""SELECT id_cuadre 
                                FROM cuadre_caja 
                                WHERE DATE(fecha) = %s 
-                               AND id_usuario = %s""", (fecha, id_usuario))
+                               AND id_empleado = %s""", (fecha, id_empleado))
                 return {
                     "success": True, 
                     "existe": True if cursor.fetchone() else False}
