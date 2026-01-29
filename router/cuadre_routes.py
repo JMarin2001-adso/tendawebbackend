@@ -10,9 +10,9 @@ router = APIRouter(
 
 
 @router.get("/ventas-diarias")
-def ventas_diarias(fecha: str, id_usuario: int):
+def ventas_diarias(fecha: str, id_empleado: int):
     service = CuadreCajaService()
-    return service.obtener_ventas_diarias(fecha, id_usuario)
+    return service.obtener_ventas_diarias(fecha, id_empleado)
 
 @router.post("/")
 def guardar_cuadre(data: CuadreCajaIn):
@@ -20,13 +20,13 @@ def guardar_cuadre(data: CuadreCajaIn):
     return service.guardar_cuadre_caja(data)
 
 @router.get("/cuadre-online")
-def ventas_online_diarias(fecha: str):
+def ventas_online_diarias(fecha: str,id_empleado:int):
     service = CuadreCajaService()
-    return service.obtener_ventas_online(fecha)
+    return service.obtener_ventas_online(fecha, id_empleado)
 
 @router.get("/existe")
-def verificar_cuadre(fecha: str, id_usuario: int):
+def verificar_cuadre(fecha: str, id_empleado: int):
     service = CuadreCajaService()
-    return service.verificar_existencia_cuadre(fecha, id_usuario)
+    return service.verificar_existencia_cuadre(fecha, id_empleado)
 
 
