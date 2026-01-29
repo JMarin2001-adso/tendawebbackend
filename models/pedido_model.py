@@ -13,4 +13,5 @@ class PedidoClienteCreate(BaseModel):
     productos: List[PedidoClienteItem]
     
 class PedidoActualizarEstado(BaseModel):
+    id_empleado:int
     estado: str  # 0 = revisión, 1 = aprobado, 2 = rechazado

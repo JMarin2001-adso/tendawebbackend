@@ -86,7 +86,7 @@ class PedidoService:
         
 
 
-    def actualizar_estado_sync(self, id_pedido, estado, motivo=None):
+    def actualizar_estado_sync(self, id_pedido, estado, id_empleado, motivo=None):
         try:
             
             estados_validos = [
@@ -117,14 +117,14 @@ class PedidoService:
                 
                 cursor.execute("""
                                UPDATE pedido_cliente
-                               SET estado = %s
+                               SET estado = %s,id_empleado=%s
                                WHERE id_pedido = %s
-                               """, (estado, id_pedido))
+                               """, (estado, id_empleado,id_pedido))
                 
                 descripcion = (
-                    f"Pedido rechazado. Motivo: {motivo}"
+                    f"Empleado {id_empleado} rechazó pedido. Motivo: {motivo}"
                     if estado == "rechazado" and motivo
-                    else f"Se cambió el estado del pedido a {estado}"
+                    else f"Empleado {id_empleado} cambió estado a {estado}"
                     )
                 
                 cursor.execute("""
