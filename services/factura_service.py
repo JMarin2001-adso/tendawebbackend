@@ -56,6 +56,7 @@ class FacturaService:
                     data.id_pedido,
                     num_factura,
                     id_usuario,
+                    data.id_empleado,
                     total
                     ))
                 
