@@ -22,9 +22,9 @@ def actualizar_estado(id_pedido: int, data: PedidoActualizarEstado):
     return service.actualizar_estado_sync(id_pedido, data.estado)
 
 @router.put("/aprobar/{id_pedido}")
-def aprobar_pedido(id_pedido: int, id_empelado:int):
+def aprobar_pedido(id_pedido: int,data:PedidoActualizarEstado):
     service = PedidoService()
-    return service.actualizar_estado_sync(id_pedido, "pagado",id_empelado)
+    return service.actualizar_estado_sync(id_pedido, "pagado",data.id_empleado)
 
 @router.put("/rechazar/{id_pedido}")
 def rechazar_pedido(id_pedido: int, data: dict):
